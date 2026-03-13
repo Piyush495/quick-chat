@@ -55,7 +55,7 @@ export const login = async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password)
-    res.status(400).json({ message: "Email and password are required" });
+    return res.status(400).json({ message: "Email and password are required" });
 
   try {
     const user = await User.findOne({ email });
@@ -75,7 +75,7 @@ export const login = async (req, res) => {
     });
   } catch (error) {
     console.log("Error in login controller:" + error.message);
-    res.status(500).json({ message: "Inetrnal server error" });
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
