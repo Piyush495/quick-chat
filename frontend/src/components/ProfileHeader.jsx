@@ -56,7 +56,7 @@ function ProfileHeader() {
         </div>
         {/*Logout Button*/}
         <div className="flex gap-4 items-center">
-          <button className="text-slate-400 hover:text-slate-200 transition-colors" onClick={logout}>
+          <button className="text-slate-400 hover:text-slate-200 transition-colors cursor-pointer" onClick={logout}>
             <LogOutIcon className="size-5"/>
           </button>
         </div>
