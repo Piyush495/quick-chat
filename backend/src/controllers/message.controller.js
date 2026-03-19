@@ -51,7 +51,7 @@ export const sendMessage = async (req, res) => {
       return res.status(400).json({ message: "Receiver not found" });
     let imageUrl;
     if (image) {
-      const uploadResponse = await cloudinary.uploader.upload(image);
+      const uploadResponse = await cloudinary.uploader.unsigned_upload(image,"enggeo6g");
       imageUrl = uploadResponse.secure_url;
     }
     const newMessage = new Message({
