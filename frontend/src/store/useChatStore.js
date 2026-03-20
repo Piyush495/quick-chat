@@ -48,7 +48,7 @@ export const useChatStore = create((set, get) => ({
     }
   },
   sendMessage: async (messageData) => {
-    const { selectedUser, messages } = get();
+    const { selectedUser } = get();
     const { authUser } = useAuthStore.getState();
 
     const tempId = `temp-${Date.now()}`;
@@ -62,27 +62,36 @@ export const useChatStore = create((set, get) => ({
       createdAt: new Date().toISOString(),
     };
     // immidetaly update the ui by adding the message
-    set({ messages: [...messages, optimisticMessage] });
+    set({ messages: [...get().messages, optimisticMessage] });
 
-    try {
-      const res = await axiosInstance.post(
-        `/message/send/${selectedUser._id}`,
-        messageData,
-      );
-      set({ messages: messages.concat(res.data) });
-    } catch (error) {
-      // remove optimistic message on failure
-      set({ messages: messages });
-      toast.error(error?.response?.data?.message || "Something went wrong");
-    }
+   try {
+    const res = await axiosInstance.post(`/message/send/${selectedUser._id}`, messageData);
+
+    set({ 
+      messages: get().messages.map((m) => (m._id === tempId ? res.data : m)) 
+    });
+  } catch (error) {
+    set({ 
+      messages: get().messages.filter((m) => m._id !== tempId) 
+    });
+    toast.error(error.response?.data?.message || "Something went wrong");
+  }
   },
   subscribeToMessages:()=>{
-    const {selectedUser}=get();
-    if(!selectedUser)return;
+
     const socket=useAuthStore.getState().socket;
+    if(!socket)return;
+    socket.off("newMessage")
+
     socket.on("newMessage",(newMessage)=>{
-      const currentMessages=get().messages;
-      set({messages:[...currentMessages,newMessage]});
+
+      const {selectedUser}=get();
+      if(!selectedUser)return;
+
+      const isMessageSentFromSelectedUser=String(newMessage.senderId)===String(selectedUser._id);
+      if(!isMessageSentFromSelectedUser)return;
+      
+      set({messages:[...get().messages,newMessage]});
     })
   },
   unsubscribeFromMessages:()=>{
