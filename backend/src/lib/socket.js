@@ -15,10 +15,9 @@ const io = new Server(server, {
   },
 });
 
-
 io.use(socketAuthMiddleware);
 
-export function getReceiverSocketId(userId){
+export function getReceiverSocketId(userId) {
   return userSocketMap[userId];
 }
 const userSocketMap = {};
@@ -31,6 +30,10 @@ io.on("connection", (socket) => {
 
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
+  socket.on("ping_test", (sentAt) => {
+    socket.emit("pong_test", sentAt);
+  });
+
   socket.on("disconnect", () => {
     console.log("A user disconnected", socket.user.fullName);
     delete userSocketMap[userId];
@@ -38,4 +41,4 @@ io.on("connection", (socket) => {
   });
 });
 
-export {io,app,server}
+export { io, app, server };
