@@ -22,7 +22,7 @@ app.use("/api/message", messageRoutes);
 
 connectDB()
   .then(() => {
-    console.log("database connection established succcessfully");
+    console.log("database connection established successfully");
     server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
