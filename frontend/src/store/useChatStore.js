@@ -20,7 +20,7 @@ export const useChatStore = create((set, get) => ({
       const res = await axiosInstance.get("/message/contacts");
       set({ allContacts: res.data });
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error?.response?.data?.message);
     } finally {
       set({ isUserLoading: false });
     }
@@ -31,7 +31,7 @@ export const useChatStore = create((set, get) => ({
       const res = await axiosInstance.get("/message/chats");
       set({ chats: res.data });
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error?.response?.data?.message);
     } finally {
       set({ isUserLoading: false });
     }
@@ -74,7 +74,7 @@ export const useChatStore = create((set, get) => ({
     set({ 
       messages: get().messages.filter((m) => m._id !== tempId) 
     });
-    toast.error(error.response?.data?.message || "Something went wrong");
+    toast.error(error?.response?.data?.message || "Something went wrong");
   }
   },
   subscribeToMessages:()=>{
