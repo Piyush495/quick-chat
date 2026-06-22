@@ -1,7 +1,10 @@
 import { generateToken } from "../lib/utils.js";
+import dotenv from "dotenv";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import cloudinary from "../lib/cloudinary.js";
+
+dotenv.config();
 
 export const signup = async (req, res) => {
   const { fullName, email, password } = req.body;
@@ -89,6 +92,7 @@ export const logout = async (req, res) => {
 };
 
 export const updateProfile = async (req, res) => {
+  const cloudinaryPreset=process.env.CLOUDINARY_UPLOAD_PRESET;
   try {
     if (!req.user) return res.status(401).json({ message: "Unauthorized" });
     const { profilePic } = req.body;
@@ -99,7 +103,7 @@ export const updateProfile = async (req, res) => {
 
     const uploadResponse = await cloudinary.uploader.unsigned_upload(
       profilePic,
-      "enggeo6g",
+      cloudinaryPreset,
     );
 
     const updatedUser = await User.findByIdAndUpdate(

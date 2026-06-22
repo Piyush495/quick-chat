@@ -2,6 +2,9 @@ import cloudinary from "../lib/cloudinary.js";
 import { getReceiverSocketId,io } from "../lib/socket.js";
 import Message from "../models/Message.js";
 import User from "../models/User.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const getAllContacts = async (req, res) => {
   try {
@@ -36,6 +39,7 @@ export const getMessageByUserId = async (req, res) => {
 };
 
 export const sendMessage = async (req, res) => {
+  const cloudinaryPreset=process.env.CLOUDINARY_UPLOAD_PRESET;
   try {
     const { text, image } = req.body;
     const senderId = req.user._id;
@@ -52,7 +56,7 @@ export const sendMessage = async (req, res) => {
       return res.status(400).json({ message: "Receiver not found" });
     let imageUrl;
     if (image) {
-      const uploadResponse = await cloudinary.uploader.unsigned_upload(image,"enggeo6g");
+      const uploadResponse = await cloudinary.uploader.unsigned_upload(image,cloudinaryPreset);
       imageUrl = uploadResponse.secure_url;
     }
     const newMessage = new Message({
