@@ -1,5 +1,5 @@
 import cloudinary from "../lib/cloudinary.js";
-import { getReceiverSocketId,io } from "../lib/socket.js";
+import { getReceiverSocketId, io } from "../lib/socket.js";
 import Message from "../models/Message.js";
 import User from "../models/User.js";
 import dotenv from "dotenv";
@@ -39,7 +39,7 @@ export const getMessageByUserId = async (req, res) => {
 };
 
 export const sendMessage = async (req, res) => {
-  const cloudinaryPreset=process.env.CLOUDINARY_UPLOAD_PRESET;
+  const cloudinaryPreset = process.env.CLOUDINARY_UPLOAD_PRESET;
   try {
     const { text, image } = req.body;
     const senderId = req.user._id;
@@ -51,12 +51,21 @@ export const sendMessage = async (req, res) => {
       return res
         .status(400)
         .json({ message: "Cannot send message to yourself" });
+
     const receiverExists = await User.exists({ _id: receiverId });
     if (!receiverExists)
       return res.status(400).json({ message: "Receiver not found" });
+
+    if (text && text.length > 1000)
+      return res
+        .status(400)
+        .json({ message: "Message cannot be more than 1000 characters" });
     let imageUrl;
     if (image) {
-      const uploadResponse = await cloudinary.uploader.unsigned_upload(image,cloudinaryPreset);
+      const uploadResponse = await cloudinary.uploader.unsigned_upload(
+        image,
+        cloudinaryPreset,
+      );
       imageUrl = uploadResponse.secure_url;
     }
     const newMessage = new Message({
@@ -67,9 +76,9 @@ export const sendMessage = async (req, res) => {
     });
     await newMessage.save();
 
-    const receiverSocketId=getReceiverSocketId(receiverId);
-    if(receiverSocketId){
-      io.to(receiverSocketId).emit("newMessage",newMessage);
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("newMessage", newMessage);
     }
 
     res.status(201).json(newMessage);
