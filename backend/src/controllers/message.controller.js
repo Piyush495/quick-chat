@@ -60,30 +60,36 @@ export const sendMessage = async (req, res) => {
       return res
         .status(400)
         .json({ message: "Message cannot be more than 1000 characters" });
-    let imageUrl;
-    if (image) {
-      const uploadResponse = await cloudinary.uploader.unsigned_upload(
-        image,
-        cloudinaryPreset,
-      );
-      imageUrl = uploadResponse.secure_url;
-    }
-    const newMessage = new Message({
-      senderId,
-      receiverId,
-      text,
-      image: imageUrl,
-    });
-    await newMessage.save();
 
-    const receiverSocketId = getReceiverSocketId(receiverId);
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit("newMessage", newMessage);
-    }
+    try {
+      let imageUrl;
+      if (image) {
+        const uploadResponse = await cloudinary.uploader.unsigned_upload(
+          image,
+          cloudinaryPreset,
+        );
+        imageUrl = uploadResponse.secure_url;
+      }
+      const newMessage = new Message({
+        senderId,
+        receiverId,
+        text,
+        image: imageUrl,
+      });
+      await newMessage.save();
 
-    res.status(201).json(newMessage);
+      const receiverSocketId = getReceiverSocketId(receiverId);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("newMessage", newMessage);
+      }
+
+      res.status(201).json(newMessage);
+    } catch (error) {
+      console.log("Error in cloudinary upload in sendMessage controller",error);
+      res.status(500).json({message:"Internal Server error"});
+    }
   } catch (error) {
-    console.log("Error in sendMesage controller", error);
+    console.log("Error in sendMessage controller", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
