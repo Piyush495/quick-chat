@@ -9,9 +9,11 @@ function ContactsList() {
     getAllContacts();
   },[getAllContacts]);
   if(isUserLoading)return <UsersLoadingSkeleton/>
+  if(!Array.isArray(allContacts) || allContacts.length === 0) return <NoChatsFound/>
   return (
     <>
       {allContacts.map((contact) => (
+
         <div
           key={contact._id}
           className="bg-cyan-500/10 p-4 rounded-lg cursor-pointer hover:bg-cyan-500/20 transition-colors"
