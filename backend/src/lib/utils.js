@@ -8,12 +8,15 @@ export const generateToken = (userId, res) => {
     expiresIn: "7d",
   });
 
+  const isHttps = process.env.HTTPS === "true";
+
   res.cookie("jwt", token, {
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    sameSite:process.env.Mode === "development" ? "strict" : "none",
-    secure: process.env.Mode !== "development",
+    sameSite: isHttps ? "none" : "lax",
+    secure: isHttps,
   });
 
   return token;
 };
+

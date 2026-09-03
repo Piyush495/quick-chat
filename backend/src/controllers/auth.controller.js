@@ -83,13 +83,15 @@ export const login = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
+  const isHttps = process.env.HTTPS === "true";
   res.cookie("jwt", "", {
     maxAge: 0,
-    sameSite: process.env.Mode === "development" ? "strict" : "none",
-    secure: process.env.Mode !== "development",
+    sameSite: isHttps ? "none" : "lax",
+    secure: isHttps,
   });
   res.status(200).json({ message: "Logged out successfully" });
 };
+
 
 export const updateProfile = async (req, res) => {
   const cloudinaryPreset=process.env.CLOUDINARY_UPLOAD_PRESET;
