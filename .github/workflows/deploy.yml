@@ -1,0 +1,33 @@
+name: Deploy Real-Time Chat App to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Navigate to application directory
+            cd ~/quick-chat || cd /home/ubuntu/quick-chat
+
+            # Pull latest changes from main branch
+            git pull origin main
+
+            # Rebuild and restart containers in background
+            docker compose up -d --build
+
+            # Clean up old unused Docker images
+            docker image prune -f

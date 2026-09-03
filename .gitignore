@@ -6,3 +6,5 @@ build
 *.log
 *.swp
 .DS_Store
+DEPLOYMENT_GUIDE.md
+deployment_guide.md
